@@ -1,0 +1,138 @@
+/* IMPORTAR FUENTES */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Press+Start+2P&family=Verdana&display=swap');
+
+:root {
+  /* TU PALETA EXACTA DE JAVAFX */
+  --bg-deep: #0d0915;
+  --bg-panel: #1a122b;
+  --bg-input: rgba(5, 5, 10, 0.7);
+  
+  --gold-primary: #f7d27a;
+  --gold-dark: #d4a017;
+  --gold-glow: rgba(247, 210, 122, 0.15);
+  
+  --text-main: #ffffff;
+  --text-muted: #b5a7c6;
+  
+  /* Fuentes */
+  --font-rpg: 'Cinzel', serif;      /* Para Títulos (Estilo Georgia/Runewood) */
+  --font-pixel: 'Press Start 2P', cursive; /* Para detalles retro */
+  --font-body: 'Verdana', sans-serif; /* Para lectura fácil */
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  
+  /* FONDO TÉCNICO SUTIL (GRID) */
+  background-image: 
+    linear-gradient(rgba(247, 210, 122, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247, 210, 122, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* SCROLLBAR PERSONALIZADO (Estilo Dorado) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep); 
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dark); 
+  border-radius: 5px;
+}
+
+/* CLASES DE UTILIDAD BASADAS EN TU CSS */
+
+/* Títulos Rúnicos */
+.text-rpg-gold {
+  font-family: var(--font-rpg);
+  color: var(--gold-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.8); /* Tu dropshadow de JavaFX */
+}
+
+/* Botón Hero (Gradiente Dorado) */
+.btn-hero {
+  background: linear-gradient(to bottom, var(--gold-primary), var(--gold-dark));
+  color: #1a0f26;
+  font-family: var(--font-rpg);
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 14px 40px;
+  border: 1px solid rgba(255,255,255,0.4);
+  cursor: pointer;
+  border-radius: 4px; /* Un poco menos cuadrado para web */
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(247, 210, 122, 0.4);
+}
+
+.btn-hero:hover {
+  background: #ffffff;
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 25px rgba(247, 210, 122, 0.8);
+}
+
+/* Botón Secundario (Outline) */
+.btn-secondary {
+  background: transparent;
+  color: var(--gold-primary);
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  padding: 14px 30px;
+  border: 2px solid var(--gold-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(247, 210, 122, 0.1);
+  box-shadow: 0 0 15px var(--gold-glow);
+}
+
+/* Panel Estilo Cristal Oscuro */
+.rpg-panel {
+  background: linear-gradient(135deg, rgba(26, 18, 43, 0.9), rgba(13, 9, 21, 0.95));
+  border: 1px solid var(--gold-primary);
+  border-radius: 15px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 30px rgba(247, 210, 122, 0.05);
+  backdrop-filter: blur(10px); /* Efecto cristal moderno */
+}
+
+/* Estilos para inputs del Login */
+.input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(247, 210, 122, 0.3);
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+}
+
+.input-group:focus-within {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+
+.rpg-input {
+  background: transparent;
+  border: none;
+  color: white;
+  margin-left: 10px;
+  width: 100%;
+  font-family: var(--font-body);
+  outline: none;
+  font-size: 0.95rem;
+}
+
+.rpg-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
