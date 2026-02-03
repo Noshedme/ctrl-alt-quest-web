@@ -1,24 +1,33 @@
-// SIMULACIÓN DE BASE DE DATOS
-const MOCK_DB = {
-  users: [
-    { id: 1, username: 'admin', password: '123', role: 'ADMIN', email: 'admin@quest.com', level: 99 },
-    { id: 2, username: 'player1', password: '123', role: 'USER', email: 'player@quest.com', level: 5 }
-  ]
+const API_URL = 'http://localhost:3000/api';
+
+export const loginUser = async (username, password) => {
+  try {
+    // Intentamos conectar con el backend
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Login exitoso (Status 200)
+      return { success: true, user: data };
+    } else {
+      // Error del servidor (Status 401, 404, 500)
+      return { success: false, message: data.message || 'Error de credenciales' };
+    }
+
+  } catch (error) {
+    // Error si el servidor está apagado o no hay internet
+    console.error("Error de red:", error);
+    return { success: false, message: "No se pudo conectar con el servidor (¿Node está corriendo?)" };
+  }
 };
 
-export const loginUser = (username, password) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const user = MOCK_DB.users.find(u => u.username === username && u.password === password);
-      if (user) {
-        // Retornamos el usuario sin la contraseña
-        const { password, ...userWithoutPass } = user;
-        resolve({ success: true, user: userWithoutPass });
-      } else {
-        reject({ success: false, message: "Credenciales inválidas" });
-      }
-    }, 800); // Simulamos un pequeño delay de red
-  });
+export const getUsers = async () => {
+    return []; 
 };
-
-export const getMockUsers = () => MOCK_DB.users; // Para el CRUD del admin

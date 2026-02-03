@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast'; // ✅ IMPORTANTE: Para las notificaciones
 
-// Importamos la lógica de autenticación
+// Importamos la lógica de autenticación del Contexto
 import { useAuth } from '../context/AuthContext';
-import { loginUser } from '../services/authService';
 
 import bgVideo from '../assets/videos/background.mp4';
 
@@ -44,8 +44,9 @@ const Auth = () => {
   const videoRef = useRef(null);
 
   // --- LÓGICA DE LOGIN ---
-  const { login } = useAuth();
+  const { login } = useAuth(); // Usamos la función del contexto que ya conecta al backend
   const navigate = useNavigate();
+  
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -57,26 +58,50 @@ const Auth = () => {
     }
   }, []);
 
-  const handleLogin = async () => {
+  // --- FUNCIÓN DE SUBMIT ROBUSTA (EVITA DOBLE LOGIN) ---
+  const handleSubmit = async (e) => {
+      e.preventDefault(); // 🛑 Evita recarga de página
+      e.stopPropagation(); // 🛑 Evita el "doble submit" fantasma
+      
       setError('');
       setLoading(true);
+      
+      // Feedback visual inmediato
+      const toastId = toast.loading("Conectando con el servidor...");
+
       try {
-          // 1. Intentamos loguear con el servicio simulado
-          const response = await loginUser(username, password);
-          
-          if (response.success) {
-              // 2. Guardamos al usuario en el contexto global
-              login(response.user);
+          if (isLogin) {
+              // 1. Llamamos al login del Contexto
+              const result = await login(username, password);
               
-              // 3. Redirigimos según el ROL
-              if (response.user.role === 'ADMIN') {
-                  navigate('/admin');
+              if (result.success) {
+                  toast.dismiss(toastId);
+                  toast.success(`¡Bienvenido, ${result.user.username}!`);
+                  
+                  // 2. Redirigimos según el ROL
+                  if (result.user.role === 'ADMIN') {
+                      navigate('/admin');
+                  } else {
+                      navigate('/lobby'); // Redirige al lobby de usuario
+                  }
               } else {
-                  navigate('/lobby'); // Redirige al lobby de usuario
+                  // Error de credenciales (Servidor dijo NO)
+                  toast.dismiss(toastId);
+                  setError(result.message);
+                  toast.error(result.message || "Credenciales incorrectas");
               }
+          } else {
+              // Lógica de Registro (Aún no implementada en backend)
+              toast.dismiss(toastId);
+              toast.error("El registro está cerrado temporalmente.");
+              setError("Contacta al administrador para crear una cuenta.");
           }
       } catch (err) {
-          setError(err.message || 'Error de conexión');
+          // Error de red (Servidor apagado)
+          toast.dismiss(toastId);
+          console.error(err);
+          setError("No se pudo conectar con el servidor.");
+          toast.error("Error de conexión");
       } finally {
           setLoading(false);
       }
@@ -152,18 +177,21 @@ const Auth = () => {
         </div>
 
         {/* MENSAJE DE ERROR */}
-        {error && (
-            <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                style={{ background: 'rgba(233, 69, 96, 0.2)', border: '1px solid #e94560', padding: '10px', borderRadius: '5px', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px', color: '#ffadad', fontSize: '0.8rem' }}
-            >
-                <AlertCircle size={16} /> {error}
-            </motion.div>
-        )}
+        <AnimatePresence>
+            {error && (
+                <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    style={{ background: 'rgba(233, 69, 96, 0.2)', border: '1px solid #e94560', padding: '10px', borderRadius: '5px', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px', color: '#ffadad', fontSize: '0.8rem' }}
+                >
+                    <AlertCircle size={16} /> {error}
+                </motion.div>
+            )}
+        </AnimatePresence>
 
-        {/* FORMULARIO */}
-        <form style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* FORMULARIO (Ahora con onSubmit) */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <AnimatePresence mode='wait'>
                 <motion.div
                     key={isLogin ? "login-form" : "register-form"}
@@ -187,6 +215,7 @@ const Auth = () => {
                             className="rpg-input"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
+                            required
                         />
                     </motion.div>
 
@@ -198,6 +227,7 @@ const Auth = () => {
                             className="rpg-input"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            required
                         />
                     </motion.div>
 
@@ -214,8 +244,7 @@ const Auth = () => {
                         whileTap={{ scale: 0.97 }}
                         className="btn-hero"
                         style={{ marginTop: '10px', width: '100%', fontSize: '1rem', opacity: loading ? 0.7 : 1 }}
-                        type="button"
-                        onClick={isLogin ? handleLogin : () => {}} // Solo login funciona por ahora
+                        type="submit" // ✅ IMPORTANTE: type="submit"
                         disabled={loading}
                     >
                         {loading ? 'ACCEDIENDO...' : (isLogin ? 'INICIAR SESIÓN' : 'REGISTRARSE')}
@@ -230,6 +259,7 @@ const Auth = () => {
             {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
           </p>
           <motion.button
+            type="button" // ✅ IMPORTANTE: type="button" para que no envíe form
             whileHover={{ scale: 1.05, color: '#fff' }}
             onClick={() => { setIsLogin(!isLogin); setError(''); }}
             style={{

@@ -8,9 +8,10 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // --- IMPORTAMOS COMPONENTES UI GLOBALES ---
-import CustomCursor from './components/CustomCursor'; // <--- EL CURSOR ÉPICO QUE CREAMOS
+import CustomCursor from './components/CustomCursor'; 
 import SplashScreen from './components/SplashScreen';
 import Footer from './components/Footer';
+import Ranking from './components/Ranking';
 
 // --- IMPORTAMOS PÁGINAS ---
 import Home from './pages/Home';
@@ -18,6 +19,7 @@ import Auth from './pages/Auth';
 import AdminDashboard from './pages/AdminDashboard';
 import UserLobby from './pages/UserLobby';
 import NotFound from './pages/NotFound';
+import TestZone from './pages/TestZone'; // ⬅️ 1. IMPORTANTE: IMPORTAMOS LA PÁGINA AQUÍ
 
 // --- COMPONENTE DE SEGURIDAD: SOLO ADMINS ---
 const AdminRoute = ({ children }) => {
@@ -70,7 +72,6 @@ const AppContent = () => {
       <Toaster 
         position="bottom-right"
         toastOptions={{
-            // Estilos generales (Fondo negro, borde verde, fuente pixel)
             style: {
                 background: 'rgba(13, 9, 21, 0.95)',
                 color: '#fff',
@@ -82,7 +83,6 @@ const AppContent = () => {
                 backdropFilter: 'blur(5px)',
                 zIndex: 10000
             },
-            // Estilos específicos
             success: {
                 iconTheme: { primary: '#4caf50', secondary: '#000' },
                 style: { border: '1px solid #4caf50' }
@@ -109,11 +109,19 @@ const AppContent = () => {
         <LayoutWithFooter>
             <Routes>
               
-              {/* RUTA PÚBLICA: HOME */}
-              <Route path="/" element={<Home />} />
+              {/* RUTA PÚBLICA: HOME + RANKING */}
+              <Route path="/" element={
+                <>
+                  <Home />
+                  <Ranking /> 
+                </>
+              } />
               
               {/* RUTA PÚBLICA: LOGIN / REGISTRO */}
               <Route path="/auth" element={<Auth />} />
+
+              {/* 👇 2. IMPORTANTE: LA RUTA DEL SANDBOX DE PRUEBAS 👇 */}
+              <Route path="/test-zone" element={<TestZone />} />
               
               {/* RUTA PROTEGIDA: ADMIN DASHBOARD */}
               <Route 
@@ -134,6 +142,9 @@ const AppContent = () => {
                   </ProtectedRoute>
                 } 
               />
+
+              {/* RUTA EXTRA: RANKING SOLO */}
+              <Route path="/leaderboard" element={<Ranking />} />
 
               {/* RUTA 404: CUALQUIER OTRA URL CAERÁ AQUÍ */}
               <Route path="*" element={<NotFound />} />
